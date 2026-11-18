@@ -43,3 +43,27 @@ SELECT
 FROM samples s
 CROSS JOIN actor a
 ORDER BY s.test_id;
+
+
+
+SELECT
+  t.tag_value AS sensitivity,
+  c.data_type,
+  c.full_data_type,
+  COUNT(*) AS column_count
+FROM system.information_schema.columns c
+JOIN system.information_schema.column_tags t
+  ON c.table_catalog = t.catalog_name
+ AND c.table_schema  = t.schema_name
+ AND c.table_name    = t.table_name
+ AND c.column_name   = t.column_name
+WHERE c.table_catalog = 'ifbi_edw_dev_raw'
+  AND t.tag_name = 'ifbi_sensitivity'
+  AND t.tag_value IN (
+    'Confidential Critical',
+    'Confidential Restricted',
+    'Confidential Sensitive',
+    'Unclassified'
+  )
+GROUP BY t.tag_value, c.data_type, c.full_data_type
+ORDER BY t.tag_value, c.data_type, c.full_data_type;
