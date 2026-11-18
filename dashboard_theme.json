@@ -1,0 +1,130 @@
+{
+  "theme": {
+    "canvasBackgroundColor": {
+      "light": "#E4EBF5",
+      "dark": "#070D1A"
+    },
+    "widgetBackgroundColor": {
+      "light": "#F7FAFE",
+      "dark": "#14203A"
+    },
+    "widgetBorderColor": {
+      "light": "#FFFFFF",
+      "dark": "#2C3E63"
+    },
+    "selectionColor": {
+      "light": "#2272B4",
+      "dark": "#4EA1E8"
+    },
+    "visualizationColors": [
+      "#2375A8",
+      "#15AFDD",
+      "#C89930",
+      "#52A870",
+      "#8E6CC4",
+      "#C85070",
+      "#5C7A99"
+    ],
+    "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED",
+    "widgetPadding": 16,
+    "widgetMargin": 12,
+    "widgetCornerRadius": 16,
+    "widgetShadow": 35,
+    "fontSettings": {
+      "base": {
+        "fontFamily": "Inter",
+        "fontColor": {
+          "light": "#0F1B2D",
+          "dark": "#E6EBF2"
+        }
+      },
+      "widgetTitle": {
+        "fontSize": 14,
+        "fontWeight": 600
+      }
+    },
+    "gridLineColor": {
+      "light": "#DCE4EF",
+      "dark": "#22314F"
+    },
+    "visualizationColorMappings": [
+      {
+        "value": "Critical",
+        "color": "#D32F2F"
+      },
+      {
+        "value": "High",
+        "color": "#F57C00"
+      },
+      {
+        "value": "Medium",
+        "color": "#F2C230"
+      },
+      {
+        "value": "Low",
+        "color": "#4EA1E8"
+      },
+      {
+        "value": "Unassessed",
+        "color": "#8A94A6"
+      },
+      {
+        "value": "A - Confirmed metadata gap",
+        "color": "#D32F2F"
+      },
+      {
+        "value": "B - Possible missing classification",
+        "color": "#4EA1E8"
+      },
+      {
+        "value": "C - Review required",
+        "color": "#F2C230"
+      },
+      {
+        "value": "F - Out of scope/unsupported",
+        "color": "#8A94A6"
+      },
+      {
+        "value": "Covered by ABAC policy",
+        "color": "#2375A8"
+      },
+      {
+        "value": "No ABAC policy (no masking)",
+        "color": "#C89930"
+      },
+      {
+        "value": "No tags assigned",
+        "color": "#8A94A6"
+      },
+      {
+        "value": "Not directly referenced by ABAC policy",
+        "color": "#15AFDD"
+      },
+      {
+        "value": "Confidential Critical",
+        "color": "#D32F2F"
+      },
+      {
+        "value": "Confidential Restricted",
+        "color": "#F57C00"
+      },
+      {
+        "value": "Confidential Sensitive",
+        "color": "#F2C230"
+      },
+      {
+        "value": "Unclassified",
+        "color": "#8A94A6"
+      },
+      {
+        "value": "Has matching columns",
+        "color": "#2375A8"
+      },
+      {
+        "value": "No matching columns found",
+        "color": "#C85070"
+      }
+    ]
+  },
+  "applyModeEnabled": false
+}

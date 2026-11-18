@@ -1,0 +1,4183 @@
+{
+  "pages": [
+    {
+      "name": "overview",
+      "displayName": "01 \u00b7 Coverage Overview",
+      "layout": [
+        {
+          "widget": {
+            "name": "overview_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Raw Classification Intelligence\nA current, column-level view of classification coverage, source agreement and the next stewardship actions. Scope: visible tables and views in the configured Raw catalogs; schema and table filters apply to column-based views."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "columns_total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Visible columns"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "columns_tagged",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`sensitivity_assignment_count` > 0),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Sensitivity tag assigned"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "columns_missing",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`sensitivity_state` = 'Missing sensitivity tag'),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Sensitivity tag missing"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "columns_coverage",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "ROUND(100.0 * COUNT_IF(`sensitivity_assignment_count` > 0) / NULLIF(COUNT(*),0),2)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Sensitivity tag coverage %"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "recognized_tiers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "ROUND(100.0 * COUNT_IF(`sensitivity_state` = 'Recognized sensitivity value') / NULLIF(COUNT(*),0),2)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Recognized tier values %"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "p1_count",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`action_priority` = 'P1 - Correct configuration'),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Priority 1 corrections"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 4,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "comparables",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`comparable_column`),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Columns with comparable evidence"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "mapping_agreement",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "ROUND(100.0 * COUNT_IF(`comparable_column` AND `actual_priority` = `expected_priority`) / NULLIF(COUNT_IF(`comparable_column`),0),2)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Agreement on comparable columns %"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 4,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "tier_distribution",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Assigned sensitivity distribution"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "current_sensitivity",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "current_sensitivity",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "action_distribution",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "action_priority",
+                      "expression": "`action_priority`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Stewardship action priorities"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "action_priority",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "action_priority",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 6,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "schema_summary",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "columns",
+                      "expression": "COUNT(*)"
+                    },
+                    {
+                      "name": "missing",
+                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                    },
+                    {
+                      "name": "coverage_pct",
+                      "expression": "ROUND(100.0*COUNT_IF(`sensitivity_assignment_count`>0)/NULLIF(COUNT(*),0),2)"
+                    },
+                    {
+                      "name": "p1_corrections",
+                      "expression": "COUNT_IF(`action_priority`='P1 - Correct configuration')"
+                    },
+                    {
+                      "name": "unmapped_labels",
+                      "expression": "COUNT_IF(`unmapped_source_label_count`>0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "columns",
+                    "displayName": "Columns"
+                  },
+                  {
+                    "fieldName": "missing",
+                    "displayName": "Missing"
+                  },
+                  {
+                    "fieldName": "coverage_pct",
+                    "displayName": "Coverage Pct"
+                  },
+                  {
+                    "fieldName": "p1_corrections",
+                    "displayName": "P1 Corrections"
+                  },
+                  {
+                    "fieldName": "unmapped_labels",
+                    "displayName": "Unmapped Labels"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Coverage and action concentration by schema"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "overview_metric_note",
+            "multilineTextboxSpec": {
+              "lines": [
+                "**Interpretation:** coverage measures tag presence; recognized values follow the configured taxonomy. Agreement uses only columns with a valid assigned tier and a usable mapped requirement. Blank agreement means there are no comparable columns. A tagging gap does not by itself establish PII exposure or masking behavior."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "coverage_ownership",
+      "displayName": "02 \u00b7 Schema & Ownership",
+      "layout": [
+        {
+          "widget": {
+            "name": "owner_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Find the remediation owner and the largest gaps\nCounts include each visible column once, including columns without tags. Integration metadata is kept visible so scope choices remain explicit."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "schema_missing_chart",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Missing sensitivity assignments by schema"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "schema_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "schema_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 12,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "owner_summary",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    },
+                    {
+                      "name": "schemas",
+                      "expression": "COUNT(DISTINCT `schema_name`)"
+                    },
+                    {
+                      "name": "tables_views",
+                      "expression": "COUNT(DISTINCT `table_fqn`)"
+                    },
+                    {
+                      "name": "columns",
+                      "expression": "COUNT(*)"
+                    },
+                    {
+                      "name": "missing",
+                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                    },
+                    {
+                      "name": "priority_1",
+                      "expression": "COUNT_IF(`action_priority`='P1 - Correct configuration')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "remediation_owner",
+                    "displayName": "Remediation Owner"
+                  },
+                  {
+                    "fieldName": "schemas",
+                    "displayName": "Schemas"
+                  },
+                  {
+                    "fieldName": "tables_views",
+                    "displayName": "Tables Views"
+                  },
+                  {
+                    "fieldName": "columns",
+                    "displayName": "Columns"
+                  },
+                  {
+                    "fieldName": "missing",
+                    "displayName": "Missing"
+                  },
+                  {
+                    "fieldName": "priority_1",
+                    "displayName": "Priority 1"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Owner workload"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "table_workload",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "object_type",
+                      "expression": "`object_type`"
+                    },
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    },
+                    {
+                      "name": "columns",
+                      "expression": "COUNT(*)"
+                    },
+                    {
+                      "name": "missing",
+                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                    },
+                    {
+                      "name": "tag_coverage_pct",
+                      "expression": "ROUND(100.0*COUNT_IF(`sensitivity_assignment_count`>0)/NULLIF(COUNT(*),0),2)"
+                    },
+                    {
+                      "name": "name_hint_review",
+                      "expression": "COUNT_IF(`name_hint_review`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "object_type",
+                    "displayName": "Object Type"
+                  },
+                  {
+                    "fieldName": "remediation_owner",
+                    "displayName": "Remediation Owner"
+                  },
+                  {
+                    "fieldName": "columns",
+                    "displayName": "Columns"
+                  },
+                  {
+                    "fieldName": "missing",
+                    "displayName": "Missing"
+                  },
+                  {
+                    "fieldName": "tag_coverage_pct",
+                    "displayName": "Tag Coverage Pct"
+                  },
+                  {
+                    "fieldName": "name_hint_review",
+                    "displayName": "Name Hint Review"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Table-level classification workload"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 12,
+            "height": 9
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "column_explorer",
+      "displayName": "03 \u00b7 Column Explorer",
+      "layout": [
+        {
+          "widget": {
+            "name": "column_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Trace every column to its evidence\nUse the global schema, table, sensitivity and outcome filters. Name hints are metadata review aids; they are not content-scanning results or automatic classifications."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "column_details",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "data_type",
+                      "expression": "`data_type`"
+                    },
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    },
+                    {
+                      "name": "sensitivity_state",
+                      "expression": "`sensitivity_state`"
+                    },
+                    {
+                      "name": "expected_sensitivity",
+                      "expression": "`expected_sensitivity`"
+                    },
+                    {
+                      "name": "reconciliation_basis",
+                      "expression": "`reconciliation_basis`"
+                    },
+                    {
+                      "name": "reconciliation_outcome",
+                      "expression": "`reconciliation_outcome`"
+                    },
+                    {
+                      "name": "action_priority",
+                      "expression": "`action_priority`"
+                    },
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "column_name",
+                    "displayName": "Column Name"
+                  },
+                  {
+                    "fieldName": "data_type",
+                    "displayName": "Data Type"
+                  },
+                  {
+                    "fieldName": "current_sensitivity",
+                    "displayName": "Current Sensitivity"
+                  },
+                  {
+                    "fieldName": "sensitivity_state",
+                    "displayName": "Sensitivity State"
+                  },
+                  {
+                    "fieldName": "expected_sensitivity",
+                    "displayName": "Expected Sensitivity"
+                  },
+                  {
+                    "fieldName": "reconciliation_basis",
+                    "displayName": "Reconciliation Basis"
+                  },
+                  {
+                    "fieldName": "reconciliation_outcome",
+                    "displayName": "Reconciliation Outcome"
+                  },
+                  {
+                    "fieldName": "action_priority",
+                    "displayName": "Action Priority"
+                  },
+                  {
+                    "fieldName": "remediation_owner",
+                    "displayName": "Remediation Owner"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Inventory and classification decisions"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 12,
+            "height": 10
+          }
+        },
+        {
+          "widget": {
+            "name": "column_evidence",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "source_labels",
+                      "expression": "`source_labels`"
+                    },
+                    {
+                      "name": "unmapped_source_labels",
+                      "expression": "`unmapped_source_labels`"
+                    },
+                    {
+                      "name": "auto_class_values",
+                      "expression": "`auto_class_values`"
+                    },
+                    {
+                      "name": "native_class_tags",
+                      "expression": "`native_class_tags`"
+                    },
+                    {
+                      "name": "legacy_pii_values",
+                      "expression": "`legacy_pii_values`"
+                    },
+                    {
+                      "name": "legacy_alignment",
+                      "expression": "`legacy_alignment`"
+                    },
+                    {
+                      "name": "name_hint",
+                      "expression": "`name_hint`"
+                    },
+                    {
+                      "name": "description_state",
+                      "expression": "`description_state`"
+                    },
+                    {
+                      "name": "all_tag_evidence",
+                      "expression": "`all_tag_evidence`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "column_name",
+                    "displayName": "Column Name"
+                  },
+                  {
+                    "fieldName": "source_labels",
+                    "displayName": "Source Labels"
+                  },
+                  {
+                    "fieldName": "unmapped_source_labels",
+                    "displayName": "Unmapped Source Labels"
+                  },
+                  {
+                    "fieldName": "auto_class_values",
+                    "displayName": "Auto Class Values"
+                  },
+                  {
+                    "fieldName": "native_class_tags",
+                    "displayName": "Native Class Tags"
+                  },
+                  {
+                    "fieldName": "legacy_pii_values",
+                    "displayName": "Legacy Pii Values"
+                  },
+                  {
+                    "fieldName": "legacy_alignment",
+                    "displayName": "Legacy Alignment"
+                  },
+                  {
+                    "fieldName": "name_hint",
+                    "displayName": "Name Hint"
+                  },
+                  {
+                    "fieldName": "description_state",
+                    "displayName": "Description State"
+                  },
+                  {
+                    "fieldName": "all_tag_evidence",
+                    "displayName": "All Tag Evidence"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Source labels and supporting metadata"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 12,
+            "width": 12,
+            "height": 9
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "reconciliation",
+      "displayName": "04 \u00b7 Classification Reconciliation",
+      "layout": [
+        {
+          "widget": {
+            "name": "reconciliation_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Compare assigned tiers with mapped source requirements\nExact source-tag names and values are matched to classification_mapping. Multiple valid requirements resolve to the strongest tier (priority 1 first). Unmapped labels and inconsistent rules remain visible alongside agreement."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "mapped_missing",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`expected_priority` IS NOT NULL AND `sensitivity_state`='Missing sensitivity tag'),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Mapped requirement; tag missing"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "under_classified",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`sensitivity_state`='Recognized sensitivity value' AND `actual_priority`>`expected_priority`),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Assigned tier below requirement"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "stronger_assigned",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`sensitivity_state`='Recognized sensitivity value' AND `actual_priority`<`expected_priority`),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Assigned tier above requirement"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "labels_unmapped",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`unmapped_source_label_count`>0),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Columns with unmapped source labels"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "reconciliation_outcomes",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "reconciliation_outcome",
+                      "expression": "`reconciliation_outcome`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Reconciliation outcomes"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "reconciliation_outcome",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "reconciliation_outcome",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "reconciliation_basis",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "reconciliation_basis",
+                      "expression": "`reconciliation_basis`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Evidence supporting mapped requirements"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "reconciliation_basis",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "reconciliation_basis",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "comparison_trace",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    },
+                    {
+                      "name": "expected_sensitivity",
+                      "expression": "`expected_sensitivity`"
+                    },
+                    {
+                      "name": "reconciliation_basis",
+                      "expression": "`reconciliation_basis`"
+                    },
+                    {
+                      "name": "reconciliation_outcome",
+                      "expression": "`reconciliation_outcome`"
+                    },
+                    {
+                      "name": "source_labels",
+                      "expression": "`source_labels`"
+                    },
+                    {
+                      "name": "unmapped_source_labels",
+                      "expression": "`unmapped_source_labels`"
+                    },
+                    {
+                      "name": "invalid_rule_label_count",
+                      "expression": "`invalid_rule_label_count`"
+                    },
+                    {
+                      "name": "recommended_action",
+                      "expression": "`recommended_action`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "column_name",
+                    "displayName": "Column Name"
+                  },
+                  {
+                    "fieldName": "current_sensitivity",
+                    "displayName": "Current Sensitivity"
+                  },
+                  {
+                    "fieldName": "expected_sensitivity",
+                    "displayName": "Expected Sensitivity"
+                  },
+                  {
+                    "fieldName": "reconciliation_basis",
+                    "displayName": "Reconciliation Basis"
+                  },
+                  {
+                    "fieldName": "reconciliation_outcome",
+                    "displayName": "Reconciliation Outcome"
+                  },
+                  {
+                    "fieldName": "source_labels",
+                    "displayName": "Source Labels"
+                  },
+                  {
+                    "fieldName": "unmapped_source_labels",
+                    "displayName": "Unmapped Source Labels"
+                  },
+                  {
+                    "fieldName": "invalid_rule_label_count",
+                    "displayName": "Invalid Rule Label Count"
+                  },
+                  {
+                    "fieldName": "recommended_action",
+                    "displayName": "Recommended Action"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Assigned versus expected tier"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 8,
+            "width": 12,
+            "height": 10
+          }
+        },
+        {
+          "widget": {
+            "name": "collate_vs_uc",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    },
+                    {
+                      "name": "collate_alignment",
+                      "expression": "`collate_alignment`"
+                    },
+                    {
+                      "name": "collate_terms",
+                      "expression": "`collate_terms`"
+                    },
+                    {
+                      "name": "collate_details",
+                      "expression": "`collate_details`"
+                    },
+                    {
+                      "name": "collate_last_seen_at",
+                      "expression": "`collate_last_seen_at`"
+                    },
+                    {
+                      "name": "legacy_alignment",
+                      "expression": "`legacy_alignment`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "column_name",
+                    "displayName": "Column Name"
+                  },
+                  {
+                    "fieldName": "current_sensitivity",
+                    "displayName": "Current Sensitivity"
+                  },
+                  {
+                    "fieldName": "collate_alignment",
+                    "displayName": "Collate Alignment"
+                  },
+                  {
+                    "fieldName": "collate_terms",
+                    "displayName": "Collate Terms"
+                  },
+                  {
+                    "fieldName": "collate_details",
+                    "displayName": "Collate Details"
+                  },
+                  {
+                    "fieldName": "collate_last_seen_at",
+                    "displayName": "Collate Last Seen At"
+                  },
+                  {
+                    "fieldName": "legacy_alignment",
+                    "displayName": "Legacy Alignment"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Collate and Unity Catalog evidence by column"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 8
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "collate_evidence",
+      "displayName": "05 \u00b7 Collate Feed & Assignments",
+      "layout": [
+        {
+          "widget": {
+            "name": "collate_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Collate reconciliation with explicit source outcomes\nThis feed contains glossary assignments. Only current, confirmed, non-deleted column assignments from the configured source service, matched to a visible Raw column and a consistent sensitivity mapping, contribute a requirement. Business glossary terms are not automatically sensitivity classes."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "collate_feed_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "collate_feed_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`glossary_feed_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Latest glossary assignment rows"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "collate_raw_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "collate_feed_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`raw_candidate_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Raw candidate assignment rows"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "collate_identity_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "collate_feed_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`identity_matched_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Raw identity-matched rows"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "collate_usable_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "collate_feed_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`usable_raw_assignments`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Current mapped assignment rows"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "feed_health",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "collate_feed_health",
+                  "fields": [
+                    {
+                      "name": "feed_outcome",
+                      "expression": "`feed_outcome`"
+                    },
+                    {
+                      "name": "latest_feed_observation",
+                      "expression": "`latest_feed_observation`"
+                    },
+                    {
+                      "name": "latest_raw_observation",
+                      "expression": "`latest_raw_observation`"
+                    },
+                    {
+                      "name": "freshness_target_days",
+                      "expression": "`freshness_target_days`"
+                    },
+                    {
+                      "name": "older_raw_assignments",
+                      "expression": "`older_raw_assignments`"
+                    },
+                    {
+                      "name": "unmapped_glossary_rows",
+                      "expression": "`unmapped_glossary_rows`"
+                    },
+                    {
+                      "name": "missing_assignment_ids",
+                      "expression": "`missing_assignment_ids`"
+                    },
+                    {
+                      "name": "recommended_action",
+                      "expression": "`recommended_action`"
+                    },
+                    {
+                      "name": "refreshed_at",
+                      "expression": "`refreshed_at`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "feed_outcome",
+                    "displayName": "Feed Outcome"
+                  },
+                  {
+                    "fieldName": "latest_feed_observation",
+                    "displayName": "Latest Feed Observation"
+                  },
+                  {
+                    "fieldName": "latest_raw_observation",
+                    "displayName": "Latest Raw Observation"
+                  },
+                  {
+                    "fieldName": "freshness_target_days",
+                    "displayName": "Freshness Target Days"
+                  },
+                  {
+                    "fieldName": "older_raw_assignments",
+                    "displayName": "Older Raw Assignments"
+                  },
+                  {
+                    "fieldName": "unmapped_glossary_rows",
+                    "displayName": "Unmapped Glossary Rows"
+                  },
+                  {
+                    "fieldName": "missing_assignment_ids",
+                    "displayName": "Missing Assignment Ids"
+                  },
+                  {
+                    "fieldName": "recommended_action",
+                    "displayName": "Recommended Action"
+                  },
+                  {
+                    "fieldName": "refreshed_at",
+                    "displayName": "Refreshed At"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Feed outcome and next action"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 12,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "assignment_trace",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "collate_assignment_trace",
+                  "fields": [
+                    {
+                      "name": "field_fqn",
+                      "expression": "`field_fqn`"
+                    },
+                    {
+                      "name": "uc_column_fqn",
+                      "expression": "`uc_column_fqn`"
+                    },
+                    {
+                      "name": "term_fqn",
+                      "expression": "`term_fqn`"
+                    },
+                    {
+                      "name": "label_state",
+                      "expression": "`label_state`"
+                    },
+                    {
+                      "name": "assignment_state",
+                      "expression": "`assignment_state`"
+                    },
+                    {
+                      "name": "reconciliation_state",
+                      "expression": "`reconciliation_state`"
+                    },
+                    {
+                      "name": "last_seen_at",
+                      "expression": "`last_seen_at`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "field_fqn",
+                    "displayName": "Field Fqn"
+                  },
+                  {
+                    "fieldName": "uc_column_fqn",
+                    "displayName": "Uc Column Fqn"
+                  },
+                  {
+                    "fieldName": "term_fqn",
+                    "displayName": "Term Fqn"
+                  },
+                  {
+                    "fieldName": "label_state",
+                    "displayName": "Label State"
+                  },
+                  {
+                    "fieldName": "assignment_state",
+                    "displayName": "Assignment State"
+                  },
+                  {
+                    "fieldName": "reconciliation_state",
+                    "displayName": "Reconciliation State"
+                  },
+                  {
+                    "fieldName": "last_seen_at",
+                    "displayName": "Last Seen At"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Raw assignment trace \u2014 empty when the feed has no Raw candidates"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "collate_feed_note",
+            "multilineTextboxSpec": {
+              "lines": [
+                "**Reading this page:** feed totals describe the whole inspected source and ignore column filters. The freshness target is a configurable review threshold, configurable in the build settings. A feed with zero Raw candidates is shown as \u201cNo Raw assignments found in glossary feed\u201d; this does not establish what exists in other Collate APIs or feeds."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 3
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "mapping_intelligence",
+      "displayName": "06 \u00b7 Mapping & Tag Intelligence",
+      "layout": [
+        {
+          "widget": {
+            "name": "mapping_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Make classification rules complete and consistent\nValidate the mapping rows themselves, find unmapped source labels and inspect the actual tag vocabulary. Rules use exact keys and values; no automatic alias from auto_class to General or another classification key is assumed."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "mapping_rows",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "mapping_rule_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Distinct mapping definitions"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "mapping_usable",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "mapping_rule_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`rule_state`='Rule usable'),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Usable mapping definitions"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "mapping_needs_fix",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "mapping_rule_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COALESCE(COUNT_IF(`rule_state`<>'Rule usable'),0)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Mapping definitions needing correction"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "unmapped_pairs",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "unmapped_source_labels",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "COUNT(*)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Unmapped source key/value pairs"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "unmapped_labels",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "unmapped_source_labels",
+                  "fields": [
+                    {
+                      "name": "tag_name",
+                      "expression": "`tag_name`"
+                    },
+                    {
+                      "name": "tag_value",
+                      "expression": "`tag_value`"
+                    },
+                    {
+                      "name": "affected_columns",
+                      "expression": "`affected_columns`"
+                    },
+                    {
+                      "name": "affected_schemas",
+                      "expression": "`affected_schemas`"
+                    },
+                    {
+                      "name": "recommended_action",
+                      "expression": "`recommended_action`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "tag_name",
+                    "displayName": "Tag Name"
+                  },
+                  {
+                    "fieldName": "tag_value",
+                    "displayName": "Tag Value"
+                  },
+                  {
+                    "fieldName": "affected_columns",
+                    "displayName": "Affected Columns"
+                  },
+                  {
+                    "fieldName": "affected_schemas",
+                    "displayName": "Affected Schemas"
+                  },
+                  {
+                    "fieldName": "recommended_action",
+                    "displayName": "Recommended Action"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Unmapped source labels \u2014 steward rule backlog"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "mapping_rules",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "mapping_rule_health",
+                  "fields": [
+                    {
+                      "name": "source_tag_name",
+                      "expression": "`source_tag_name`"
+                    },
+                    {
+                      "name": "source_tag_value",
+                      "expression": "`source_tag_value`"
+                    },
+                    {
+                      "name": "collate_fqn",
+                      "expression": "`collate_fqn`"
+                    },
+                    {
+                      "name": "ifbi_classification",
+                      "expression": "`ifbi_classification`"
+                    },
+                    {
+                      "name": "pii_class",
+                      "expression": "`pii_class`"
+                    },
+                    {
+                      "name": "tier_priority",
+                      "expression": "`tier_priority`"
+                    },
+                    {
+                      "name": "rule_state",
+                      "expression": "`rule_state`"
+                    },
+                    {
+                      "name": "target_variants",
+                      "expression": "`target_variants`"
+                    },
+                    {
+                      "name": "key_rows",
+                      "expression": "`key_rows`"
+                    },
+                    {
+                      "name": "matching_visible_columns",
+                      "expression": "`matching_visible_columns`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "source_tag_name",
+                    "displayName": "Source Tag Name"
+                  },
+                  {
+                    "fieldName": "source_tag_value",
+                    "displayName": "Source Tag Value"
+                  },
+                  {
+                    "fieldName": "collate_fqn",
+                    "displayName": "Collate Fqn"
+                  },
+                  {
+                    "fieldName": "ifbi_classification",
+                    "displayName": "Ifbi Classification"
+                  },
+                  {
+                    "fieldName": "pii_class",
+                    "displayName": "Pii Class"
+                  },
+                  {
+                    "fieldName": "tier_priority",
+                    "displayName": "Tier Priority"
+                  },
+                  {
+                    "fieldName": "rule_state",
+                    "displayName": "Rule State"
+                  },
+                  {
+                    "fieldName": "target_variants",
+                    "displayName": "Target Variants"
+                  },
+                  {
+                    "fieldName": "key_rows",
+                    "displayName": "Key Rows"
+                  },
+                  {
+                    "fieldName": "matching_visible_columns",
+                    "displayName": "Matching Visible Columns"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Mapping rules, consistency and observed usage"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "tags_observed",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "tag_dictionary",
+                  "fields": [
+                    {
+                      "name": "tag_name",
+                      "expression": "`tag_name`"
+                    },
+                    {
+                      "name": "tag_value",
+                      "expression": "`tag_value`"
+                    },
+                    {
+                      "name": "evidence_kind",
+                      "expression": "`evidence_kind`"
+                    },
+                    {
+                      "name": "column_assignments",
+                      "expression": "`column_assignments`"
+                    },
+                    {
+                      "name": "table_count",
+                      "expression": "`table_count`"
+                    },
+                    {
+                      "name": "schema_count",
+                      "expression": "`schema_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "tag_name",
+                    "displayName": "Tag Name"
+                  },
+                  {
+                    "fieldName": "tag_value",
+                    "displayName": "Tag Value"
+                  },
+                  {
+                    "fieldName": "evidence_kind",
+                    "displayName": "Evidence Kind"
+                  },
+                  {
+                    "fieldName": "column_assignments",
+                    "displayName": "Column Assignments"
+                  },
+                  {
+                    "fieldName": "table_count",
+                    "displayName": "Table Count"
+                  },
+                  {
+                    "fieldName": "schema_count",
+                    "displayName": "Schema Count"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Observed tag dictionary"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 19,
+            "width": 12,
+            "height": 7
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "remediation",
+      "displayName": "07 \u00b7 Steward Action Queue",
+      "layout": [
+        {
+          "widget": {
+            "name": "remediation_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Prioritized stewardship\nThe detailed queue shows P1/P2 corrections and evidence reviews. Ordinary missing-tag backlog stays aggregated by schema/table on the coverage pages. The monitor creates incidents for new changes, never one incident for each initial missing tag."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "action_owner",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT_IF(`action_priority`='P1 - Correct configuration')"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Priority 1 corrections by owner"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "remediation_owner",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "remediation_owner",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "name_hint_queue",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "name_hint",
+                      "expression": "`name_hint`"
+                    },
+                    {
+                      "name": "metric",
+                      "expression": "COUNT_IF(`name_hint_review`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "frame": {
+                "showTitle": true,
+                "title": "Columns needing sensitive-name review"
+              },
+              "data": {
+                "queryName": "main_query"
+              },
+              "encodings": {
+                "x": {
+                  "fieldName": "name_hint",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "metric",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "name_hint",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "action_queue",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "action_priority",
+                      "expression": "`action_priority`"
+                    },
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    },
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    },
+                    {
+                      "name": "expected_sensitivity",
+                      "expression": "`expected_sensitivity`"
+                    },
+                    {
+                      "name": "name_hint",
+                      "expression": "`name_hint`"
+                    },
+                    {
+                      "name": "reconciliation_outcome",
+                      "expression": "`reconciliation_outcome`"
+                    },
+                    {
+                      "name": "unmapped_source_labels",
+                      "expression": "`unmapped_source_labels`"
+                    },
+                    {
+                      "name": "recommended_action",
+                      "expression": "`recommended_action`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "action_priority",
+                    "displayName": "Action Priority"
+                  },
+                  {
+                    "fieldName": "remediation_owner",
+                    "displayName": "Remediation Owner"
+                  },
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "column_name",
+                    "displayName": "Column Name"
+                  },
+                  {
+                    "fieldName": "current_sensitivity",
+                    "displayName": "Current Sensitivity"
+                  },
+                  {
+                    "fieldName": "expected_sensitivity",
+                    "displayName": "Expected Sensitivity"
+                  },
+                  {
+                    "fieldName": "name_hint",
+                    "displayName": "Name Hint"
+                  },
+                  {
+                    "fieldName": "reconciliation_outcome",
+                    "displayName": "Reconciliation Outcome"
+                  },
+                  {
+                    "fieldName": "unmapped_source_labels",
+                    "displayName": "Unmapped Source Labels"
+                  },
+                  {
+                    "fieldName": "recommended_action",
+                    "displayName": "Recommended Action"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Steward action queue \u2014 filter priority to focus the workload"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 7,
+            "width": 12,
+            "height": 12
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "monitoring",
+      "displayName": "08 \u00b7 Monitoring & Alert Digests",
+      "layout": [
+        {
+          "widget": {
+            "name": "monitor_intro",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Changes that need attention, without per-column email floods\nThe first successful run establishes a baseline. Existing missing classifications remain aggregate backlog. Later scans detect new untagged columns after grace, removed or weakened tags, and mapping mismatches. Notifications are grouped into one digest per due batch and destination."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_backlog",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`baseline_backlog`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Baseline backlog columns"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_open",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`open_incidents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Active change incidents"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_grace",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`grace_incidents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "New columns within grace"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_pending",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_health",
+                  "fields": [
+                    {
+                      "name": "metric",
+                      "expression": "MAX(`pending_notifications`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "metric",
+                  "rowNumber": 0
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Pending notification events"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 3,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_health_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_health",
+                  "fields": [
+                    {
+                      "name": "environment",
+                      "expression": "`environment`"
+                    },
+                    {
+                      "name": "monitor_status",
+                      "expression": "`monitor_status`"
+                    },
+                    {
+                      "name": "last_success_at",
+                      "expression": "`last_success_at`"
+                    },
+                    {
+                      "name": "last_failure_at",
+                      "expression": "`last_failure_at`"
+                    },
+                    {
+                      "name": "last_visible_columns",
+                      "expression": "`last_visible_columns`"
+                    },
+                    {
+                      "name": "missing_tag_columns",
+                      "expression": "`missing_tag_columns`"
+                    },
+                    {
+                      "name": "refreshed_at",
+                      "expression": "`refreshed_at`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "environment",
+                    "displayName": "Environment"
+                  },
+                  {
+                    "fieldName": "monitor_status",
+                    "displayName": "Monitor Status"
+                  },
+                  {
+                    "fieldName": "last_success_at",
+                    "displayName": "Last Success At"
+                  },
+                  {
+                    "fieldName": "last_failure_at",
+                    "displayName": "Last Failure At"
+                  },
+                  {
+                    "fieldName": "last_visible_columns",
+                    "displayName": "Last Visible Columns"
+                  },
+                  {
+                    "fieldName": "missing_tag_columns",
+                    "displayName": "Missing Tag Columns"
+                  },
+                  {
+                    "fieldName": "refreshed_at",
+                    "displayName": "Refreshed At"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Monitor health and last successful observation"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 12,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_incident_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_incidents",
+                  "fields": [
+                    {
+                      "name": "finding_type",
+                      "expression": "`finding_type`"
+                    },
+                    {
+                      "name": "incident_status",
+                      "expression": "`incident_status`"
+                    },
+                    {
+                      "name": "priority",
+                      "expression": "`priority`"
+                    },
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    },
+                    {
+                      "name": "column_name",
+                      "expression": "`column_name`"
+                    },
+                    {
+                      "name": "responsible_owner",
+                      "expression": "`responsible_owner`"
+                    },
+                    {
+                      "name": "opened_at",
+                      "expression": "`opened_at`"
+                    },
+                    {
+                      "name": "alert_eligible_at",
+                      "expression": "`alert_eligible_at`"
+                    },
+                    {
+                      "name": "resolved_at",
+                      "expression": "`resolved_at`"
+                    },
+                    {
+                      "name": "action_context",
+                      "expression": "`action_context`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "finding_type",
+                    "displayName": "Finding Type"
+                  },
+                  {
+                    "fieldName": "incident_status",
+                    "displayName": "Incident Status"
+                  },
+                  {
+                    "fieldName": "priority",
+                    "displayName": "Priority"
+                  },
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "displayName": "Table Name"
+                  },
+                  {
+                    "fieldName": "column_name",
+                    "displayName": "Column Name"
+                  },
+                  {
+                    "fieldName": "responsible_owner",
+                    "displayName": "Responsible Owner"
+                  },
+                  {
+                    "fieldName": "opened_at",
+                    "displayName": "Opened At"
+                  },
+                  {
+                    "fieldName": "alert_eligible_at",
+                    "displayName": "Alert Eligible At"
+                  },
+                  {
+                    "fieldName": "resolved_at",
+                    "displayName": "Resolved At"
+                  },
+                  {
+                    "fieldName": "action_context",
+                    "displayName": "Action Context"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "New-change incident queue"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_notices",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_notifications",
+                  "fields": [
+                    {
+                      "name": "event_kind",
+                      "expression": "`event_kind`"
+                    },
+                    {
+                      "name": "finding_type",
+                      "expression": "`finding_type`"
+                    },
+                    {
+                      "name": "priority",
+                      "expression": "`priority`"
+                    },
+                    {
+                      "name": "column_fqn",
+                      "expression": "`column_fqn`"
+                    },
+                    {
+                      "name": "responsible_owner",
+                      "expression": "`responsible_owner`"
+                    },
+                    {
+                      "name": "notification_status",
+                      "expression": "`notification_status`"
+                    },
+                    {
+                      "name": "created_at",
+                      "expression": "`created_at`"
+                    },
+                    {
+                      "name": "evaluation_accepted_at",
+                      "expression": "`evaluation_accepted_at`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "event_kind",
+                    "displayName": "Event Kind"
+                  },
+                  {
+                    "fieldName": "finding_type",
+                    "displayName": "Finding Type"
+                  },
+                  {
+                    "fieldName": "priority",
+                    "displayName": "Priority"
+                  },
+                  {
+                    "fieldName": "column_fqn",
+                    "displayName": "Column Fqn"
+                  },
+                  {
+                    "fieldName": "responsible_owner",
+                    "displayName": "Responsible Owner"
+                  },
+                  {
+                    "fieldName": "notification_status",
+                    "displayName": "Notification Status"
+                  },
+                  {
+                    "fieldName": "created_at",
+                    "displayName": "Created At"
+                  },
+                  {
+                    "fieldName": "evaluation_accepted_at",
+                    "displayName": "Evaluation Accepted At"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Notification event audit \u2014 evaluation acceptance is separate from email delivery"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 18,
+            "width": 12,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "monitor_trends",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "monitor_daily_trends",
+                  "fields": [
+                    {
+                      "name": "observed_date",
+                      "expression": "`observed_date`"
+                    },
+                    {
+                      "name": "visible_columns",
+                      "expression": "`visible_columns`"
+                    },
+                    {
+                      "name": "missing_tags",
+                      "expression": "`missing_tags`"
+                    },
+                    {
+                      "name": "baseline_backlog",
+                      "expression": "`baseline_backlog`"
+                    },
+                    {
+                      "name": "new_untagged_open",
+                      "expression": "`new_untagged_open`"
+                    },
+                    {
+                      "name": "open_incidents",
+                      "expression": "`open_incidents`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "observed_date",
+                    "displayName": "Observed Date"
+                  },
+                  {
+                    "fieldName": "visible_columns",
+                    "displayName": "Visible Columns"
+                  },
+                  {
+                    "fieldName": "missing_tags",
+                    "displayName": "Missing Tags"
+                  },
+                  {
+                    "fieldName": "baseline_backlog",
+                    "displayName": "Baseline Backlog"
+                  },
+                  {
+                    "fieldName": "new_untagged_open",
+                    "displayName": "New Untagged Open"
+                  },
+                  {
+                    "fieldName": "open_incidents",
+                    "displayName": "Open Incidents"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Daily progress from actual successful monitor runs"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 25,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "scope_method",
+      "displayName": "09 \u00b7 Scope & Definitions",
+      "layout": [
+        {
+          "widget": {
+            "name": "scope_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Deployment scope and metric definitions\nThe same dashboard is bound to each environment\u2019s governance catalog/schema at deployment. Included catalogs, schema exclusions, reference sources, source service identity and review thresholds come from that environment\u2019s configuration. Inventory visibility follows the execution identity and source-view permissions."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "scope_refresh",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "scope_and_refresh",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    },
+                    {
+                      "name": "scope_category",
+                      "expression": "`scope_category`"
+                    },
+                    {
+                      "name": "object_type",
+                      "expression": "`object_type`"
+                    },
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    },
+                    {
+                      "name": "table_or_view_count",
+                      "expression": "`table_or_view_count`"
+                    },
+                    {
+                      "name": "visible_columns",
+                      "expression": "`visible_columns`"
+                    },
+                    {
+                      "name": "metadata_reader",
+                      "expression": "`metadata_reader`"
+                    },
+                    {
+                      "name": "refreshed_at",
+                      "expression": "`refreshed_at`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "schema_name",
+                    "displayName": "Schema Name"
+                  },
+                  {
+                    "fieldName": "scope_category",
+                    "displayName": "Scope Category"
+                  },
+                  {
+                    "fieldName": "object_type",
+                    "displayName": "Object Type"
+                  },
+                  {
+                    "fieldName": "remediation_owner",
+                    "displayName": "Remediation Owner"
+                  },
+                  {
+                    "fieldName": "table_or_view_count",
+                    "displayName": "Table Or View Count"
+                  },
+                  {
+                    "fieldName": "visible_columns",
+                    "displayName": "Visible Columns"
+                  },
+                  {
+                    "fieldName": "metadata_reader",
+                    "displayName": "Metadata Reader"
+                  },
+                  {
+                    "fieldName": "refreshed_at",
+                    "displayName": "Refreshed At"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Scope, owners and query timestamp"
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "widget": {
+            "name": "method_definitions",
+            "multilineTextboxSpec": {
+              "lines": [
+                "### Definitions\n**Tag coverage:** columns with at least one ifbi_sensitivity assignment / visible columns.\n**Recognized tier:** exactly one sensitivity value among the configured sensitivity tiers confirmed from the existing reference.\n**Mapped agreement:** matching assigned and expected priorities / columns having both a recognized tier and usable mapped evidence. Zero comparable columns produces a blank percentage.\n**Mapping rule consistency:** classification, pii_class and priority match the confirmed four-tier taxonomy; conflicting source-key targets require correction.\n**Collate reconciliation:** exact column identity and mapped terms, with confirmation, deletion and freshness checks; the inspected source is a glossary feed.\n**Name hints:** explainable column-name patterns only; they can miss PII or flag non-PII.\n**Scope of Story 1:** classification metadata and stewardship. Actual policy definitions, UDF behavior and identity-based access testing belong to the following stories."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "sources_definitions",
+            "multilineTextboxSpec": {
+              "lines": [
+                "### Source and operating model\nUnity Catalog columns, tables and column tags; configured classification mapping and optional Collate assignments. All displayed counts are calculated from current metadata.\nThe monitor stores a metadata-only journal for first observations, incidents, grouped notification digests and run history. Source read failures produce monitor failures."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 17,
+            "width": 12,
+            "height": 4
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "global_filters",
+      "displayName": "Filters",
+      "layout": [
+        {
+          "widget": {
+            "name": "filter_schema_name",
+            "queries": [
+              {
+                "name": "column_inventory_schema_name",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "collate_assignment_trace_schema_name",
+                "query": {
+                  "datasetName": "collate_assignment_trace",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_schema_name",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "schema_name",
+                      "expression": "`schema_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Schema"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "schema_name",
+                    "queryName": "column_inventory_schema_name"
+                  },
+                  {
+                    "fieldName": "schema_name",
+                    "queryName": "collate_assignment_trace_schema_name"
+                  },
+                  {
+                    "fieldName": "schema_name",
+                    "queryName": "actionable_inventory_schema_name"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_table_name",
+            "queries": [
+              {
+                "name": "column_inventory_table_name",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "collate_assignment_trace_table_name",
+                "query": {
+                  "datasetName": "collate_assignment_trace",
+                  "fields": [
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_table_name",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "table_name",
+                      "expression": "`table_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Table"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "table_name",
+                    "queryName": "column_inventory_table_name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "queryName": "collate_assignment_trace_table_name"
+                  },
+                  {
+                    "fieldName": "table_name",
+                    "queryName": "actionable_inventory_table_name"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_current_sensitivity",
+            "queries": [
+              {
+                "name": "column_inventory_current_sensitivity",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_current_sensitivity",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "current_sensitivity",
+                      "expression": "`current_sensitivity`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Assigned sensitivity"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "current_sensitivity",
+                    "queryName": "column_inventory_current_sensitivity"
+                  },
+                  {
+                    "fieldName": "current_sensitivity",
+                    "queryName": "actionable_inventory_current_sensitivity"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_action_priority",
+            "queries": [
+              {
+                "name": "column_inventory_action_priority",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "action_priority",
+                      "expression": "`action_priority`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_action_priority",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "action_priority",
+                      "expression": "`action_priority`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Action priority"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "action_priority",
+                    "queryName": "column_inventory_action_priority"
+                  },
+                  {
+                    "fieldName": "action_priority",
+                    "queryName": "actionable_inventory_action_priority"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_reconciliation_outcome",
+            "queries": [
+              {
+                "name": "column_inventory_reconciliation_outcome",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "reconciliation_outcome",
+                      "expression": "`reconciliation_outcome`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_reconciliation_outcome",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "reconciliation_outcome",
+                      "expression": "`reconciliation_outcome`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Reconciliation outcome"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "reconciliation_outcome",
+                    "queryName": "column_inventory_reconciliation_outcome"
+                  },
+                  {
+                    "fieldName": "reconciliation_outcome",
+                    "queryName": "actionable_inventory_reconciliation_outcome"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_remediation_owner",
+            "queries": [
+              {
+                "name": "column_inventory_remediation_owner",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_remediation_owner",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "remediation_owner",
+                      "expression": "`remediation_owner`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Owner"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "remediation_owner",
+                    "queryName": "column_inventory_remediation_owner"
+                  },
+                  {
+                    "fieldName": "remediation_owner",
+                    "queryName": "actionable_inventory_remediation_owner"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_catalog_name",
+            "queries": [
+              {
+                "name": "column_inventory_catalog",
+                "query": {
+                  "datasetName": "column_inventory",
+                  "fields": [
+                    {
+                      "name": "catalog_name",
+                      "expression": "`catalog_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "actionable_inventory_catalog",
+                "query": {
+                  "datasetName": "actionable_inventory",
+                  "fields": [
+                    {
+                      "name": "catalog_name",
+                      "expression": "`catalog_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "collate_assignment_trace_catalog",
+                "query": {
+                  "datasetName": "collate_assignment_trace",
+                  "fields": [
+                    {
+                      "name": "catalog_name",
+                      "expression": "`catalog_name`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "frame": {
+                "showTitle": true,
+                "title": "Catalog"
+              },
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "catalog_name",
+                    "queryName": "column_inventory_catalog"
+                  },
+                  {
+                    "fieldName": "catalog_name",
+                    "queryName": "actionable_inventory_catalog"
+                  },
+                  {
+                    "fieldName": "catalog_name",
+                    "queryName": "collate_assignment_trace_catalog"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 4,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#E4EBF5",
+        "dark": "#070D1A"
+      },
+      "widgetBackgroundColor": {
+        "light": "#F7FAFE",
+        "dark": "#14203A"
+      },
+      "widgetBorderColor": {
+        "light": "#FFFFFF",
+        "dark": "#2C3E63"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#4EA1E8"
+      },
+      "visualizationColors": [
+        "#2375A8",
+        "#15AFDD",
+        "#C89930",
+        "#52A870",
+        "#8E6CC4",
+        "#C85070",
+        "#5C7A99"
+      ],
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED",
+      "widgetPadding": 16,
+      "widgetMargin": 12,
+      "widgetCornerRadius": 16,
+      "widgetShadow": 35,
+      "fontSettings": {
+        "base": {
+          "fontFamily": "Inter",
+          "fontColor": {
+            "light": "#0F1B2D",
+            "dark": "#E6EBF2"
+          }
+        },
+        "widgetTitle": {
+          "fontSize": 14,
+          "fontWeight": 600
+        }
+      },
+      "gridLineColor": {
+        "light": "#DCE4EF",
+        "dark": "#22314F"
+      },
+      "visualizationColorMappings": [
+        {
+          "value": "Confidential Critical",
+          "color": "#D1495B"
+        },
+        {
+          "value": "Confidential Restricted",
+          "color": "#D9822B"
+        },
+        {
+          "value": "Confidential Sensitive",
+          "color": "#D4A72C"
+        },
+        {
+          "value": "Internal Use Only",
+          "color": "#167D9A"
+        },
+        {
+          "value": "(missing)",
+          "color": "#78879B"
+        },
+        {
+          "value": "P1 - Correct configuration",
+          "color": "#D1495B"
+        },
+        {
+          "value": "P2 - Steward review",
+          "color": "#D9822B"
+        },
+        {
+          "value": "P3 - Complete classification",
+          "color": "#5279BC"
+        },
+        {
+          "value": "P3 - Add source evidence",
+          "color": "#78879B"
+        },
+        {
+          "value": "P4 - Maintain",
+          "color": "#228B78"
+        }
+      ]
+    },
+    "applyModeEnabled": false
+  }
+}

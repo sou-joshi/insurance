@@ -1,0 +1,37 @@
+{
+  "checks_passed": 42,
+  "synthetic_notebook_demo": "PASSED_NO_SOURCE_READS_WRITES_OR_NOTIFICATIONS",
+  "checked": [
+    "Environment-neutral dashboard and self-contained deployment notebook",
+    "Different environments, catalogs and taxonomy values",
+    "Multi-catalog source scopes",
+    "All source/monitor datasets and all widget expressions",
+    "Large initial backlog produces zero incidents and zero notices",
+    "Grace, tag removal, downgrade, lost evidence, recurrence, reminder and recovery",
+    "One digest group for a burst of same-table column events",
+    "Accepted event exclusion and missing-parameter failure behavior",
+    "Atomic snapshot publication contract",
+    "Mocked native alert/job/dashboard provisioning and resource ID reuse",
+    "Unique widget names and non-overlapping layouts"
+  ],
+  "not_executed": [
+    "Live Databricks SQL/Spark execution",
+    "Actual Delta transaction/retention execution",
+    "Actual dashboard import/render",
+    "Actual alert/task feature availability, permissions or schedules",
+    "Notification delivery to any recipient",
+    "Deployment in any customer environment"
+  ],
+  "test_runtime": {
+    "duckdb": "2.0.0",
+    "sqlglot": "30.11.0",
+    "databricks-sdk": "0.167.0",
+    "databricks-labs-lsql": "0.18.0"
+  },
+  "dashboard": {
+    "content_pages": 9,
+    "datasets": 12,
+    "widgets": 69
+  },
+  "deployment_model": "One shared implementation plus per-environment configuration; bound logical views and isolated baseline/state; grouped native notifications."
+}

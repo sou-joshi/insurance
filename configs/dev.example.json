@@ -1,0 +1,70 @@
+{
+  "environment": "DEV",
+  "deployment_id": "raw_classification",
+  "expected_workspace_id": "7474655731975614",
+  "output_catalog": "ifbi_edw_dev_raw",
+  "output_schema": "governance_observability",
+  "warehouse_id": "",
+  "existing_cluster_id": "",
+  "dashboard_id": "",
+  "dashboard_parent_path": "",
+  "scopes": [
+    {
+      "catalog": "ifbi_edw_dev_raw",
+      "excluded_schemas": [
+        "information_schema",
+        "governance",
+        "governance_observability"
+      ],
+      "mapping_table": "ifbi_edw_dev_raw.governance.classification_mapping",
+      "collate_assignment_table": "ifbi_edw_dev_raw.collate.collate_glossary_asset_assignment",
+      "collate_service": "co_ws_ifbi_edw_dev"
+    }
+  ],
+  "sensitivity_tag": "ifbi_sensitivity",
+  "legacy_pii_tag": "pii_class",
+  "source_classification_tag_keys": [
+    "auto_class"
+  ],
+  "native_tag_prefix": "class.",
+  "taxonomy": [
+    {
+      "classification": "Confidential Critical",
+      "pii_class": "critical",
+      "priority": 1
+    },
+    {
+      "classification": "Confidential Restricted",
+      "pii_class": "restricted",
+      "priority": 2
+    },
+    {
+      "classification": "Confidential Sensitive",
+      "pii_class": "sensitive",
+      "priority": 3
+    },
+    {
+      "classification": "Internal Use Only",
+      "pii_class": "internal",
+      "priority": 4
+    }
+  ],
+  "collate_freshness_days": 7,
+  "monitor": {
+    "poll_minutes": 60,
+    "classification_grace_minutes": 30,
+    "reminder_hours": 24,
+    "maximum_notifications_per_run": 1000,
+    "maximum_columns": 50000,
+    "maximum_inventory_drop_fraction": 0.2,
+    "retention_days": 30,
+    "notification_mode": "digest",
+    "initial_backlog_notifications": false,
+    "daily_summary_enabled": true,
+    "daily_summary_hour_utc": 13
+  },
+  "notifications": {
+    "emails": [],
+    "destination_ids": []
+  }
+}
