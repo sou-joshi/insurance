@@ -4,7 +4,7 @@
       "name": "column_inventory",
       "displayName": "Column Inventory",
       "queryLines": [
-        "SELECT * FROM `ifbi_edw_dev_raw`.`governance_observability`.`raw_classification_column_inventory`\n"
+        "SELECT source_rows.*,\n CASE WHEN `sensitivity_assignment_count` > 0 THEN 1 ELSE 0 END AS `_gov_condition_1`,\n CASE WHEN `sensitivity_state` = 'Missing sensitivity tag' THEN 1 ELSE 0 END AS `_gov_condition_2`,\n CASE WHEN sensitivity_assignment_count>0 THEN 100.0 ELSE 0.0 END AS `_gov_assigned_percentage`,\n CASE WHEN sensitivity_state='Recognized sensitivity value' THEN 100.0 ELSE 0.0 END AS `_gov_recognized_percentage`,\n CASE WHEN `action_priority` = 'P1 - Correct configuration' THEN 1 ELSE 0 END AS `_gov_condition_5`,\n CASE WHEN `comparable_column` THEN 1 ELSE 0 END AS `_gov_condition_6`,\n CASE WHEN comparable_column THEN CASE WHEN actual_priority=expected_priority THEN 100.0 ELSE 0.0 END ELSE CAST(NULL AS DOUBLE) END AS `_gov_agreement_percentage`,\n CASE WHEN `unmapped_source_label_count` > 0 THEN 1 ELSE 0 END AS `_gov_condition_8`,\n CASE WHEN `name_hint_review` THEN 1 ELSE 0 END AS `_gov_condition_9`,\n CASE WHEN NOT `expected_priority` IS NULL AND `sensitivity_state` = 'Missing sensitivity tag' THEN 1 ELSE 0 END AS `_gov_condition_10`,\n CASE WHEN `sensitivity_state` = 'Recognized sensitivity value' AND `actual_priority` > `expected_priority` THEN 1 ELSE 0 END AS `_gov_condition_11`,\n CASE WHEN `sensitivity_state` = 'Recognized sensitivity value' AND `actual_priority` < `expected_priority` THEN 1 ELSE 0 END AS `_gov_condition_12`\nFROM (\nSELECT * FROM `ifbi_edw_dev_raw`.`governance_observability`.`raw_classification_column_inventory`\n) source_rows\n"
       ]
     },
     {
@@ -18,7 +18,7 @@
       "name": "mapping_rule_health",
       "displayName": "Mapping Rule Health",
       "queryLines": [
-        "SELECT * FROM `ifbi_edw_dev_raw`.`governance_observability`.`raw_classification_mapping_rule_health`\n"
+        "SELECT source_rows.*,\n CASE WHEN `rule_state` = 'Rule usable' THEN 1 ELSE 0 END AS `_gov_condition_1`,\n CASE WHEN `rule_state` <> 'Rule usable' THEN 1 ELSE 0 END AS `_gov_condition_2`\nFROM (\nSELECT * FROM `ifbi_edw_dev_raw`.`governance_observability`.`raw_classification_mapping_rule_health`\n) source_rows\n"
       ]
     },
     {
@@ -32,7 +32,7 @@
       "name": "collate_feed_health",
       "displayName": "Collate Feed Health",
       "queryLines": [
-        "SELECT f.*,\n CASE WHEN feed_outcome='Collate assignment source not configured' THEN 'Source not configured'\n WHEN latest_feed_observation IS NULL THEN 'No observation in feed'\n WHEN latest_feed_observation>current_timestamp()+INTERVAL 5 MINUTES THEN 'Observation timestamp is in the future'\n WHEN timestampdiff(SECOND,latest_feed_observation,current_timestamp())>freshness_target_days*86400\n THEN 'Refresh overdue' ELSE 'Within review threshold' END AS feed_freshness_state,\n round(timestampdiff(SECOND,latest_feed_observation,current_timestamp())/86400.0,1) AS feed_age_days\nFROM `ifbi_edw_dev_raw`.`governance_observability`.`raw_classification_collate_feed_health` f\n"
+        "SELECT source_rows.*,\n CASE WHEN `feed_freshness_state` = 'Refresh overdue' THEN `source_table` END AS `_gov_condition_1`,\n CASE WHEN `raw_candidate_rows` = 0 AND `feed_freshness_state` <> 'Source not configured' THEN 1 ELSE 0 END AS `_gov_condition_2`\nFROM (\nSELECT f.*,\n CASE WHEN feed_outcome='Collate assignment source not configured' THEN 'Source not configured'\n WHEN latest_feed_observation IS NULL THEN 'No observation in feed'\n WHEN latest_feed_observation>current_timestamp()+INTERVAL 5 MINUTES THEN 'Observation timestamp is in the future'\n WHEN timestampdiff(SECOND,latest_feed_observation,current_timestamp())>freshness_target_days*86400\n THEN 'Refresh overdue' ELSE 'Within review threshold' END AS feed_freshness_state,\n round(timestampdiff(SECOND,latest_feed_observation,current_timestamp())/86400.0,1) AS feed_age_days\nFROM `ifbi_edw_dev_raw`.`governance_observability`.`raw_classification_collate_feed_health` f\n) source_rows\n"
       ]
     },
     {
@@ -65,11 +65,7 @@
         {
           "widget": {
             "name": "overview_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Raw Classification Intelligence\nCurrent classification coverage, mapped-source agreement and stewardship actions across the configured Raw catalogs. This edition reads the deployed inventory views; scheduled change monitoring and notifications have not been configured in this step."
-              ]
-            }
+            "textbox_spec": "## Raw Classification Intelligence\nCurrent classification coverage, mapped-source agreement and stewardship actions across the configured Raw catalogs. This edition reads the deployed inventory views; scheduled change monitoring and notifications have not been configured in this step."
           },
           "position": {
             "x": 0,
@@ -88,7 +84,7 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -101,8 +97,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "count(*)",
+                  "displayName": "Visible columns",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -118,7 +122,7 @@
             "x": 0,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -131,8 +135,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`sensitivity_assignment_count` > 0),0)"
+                      "name": "sum(_gov_condition_1)",
+                      "expression": "SUM(`_gov_condition_1`)"
                     }
                   ],
                   "disaggregated": false
@@ -144,8 +148,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_1)",
+                  "displayName": "Sensitivity tag assigned",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -161,7 +173,7 @@
             "x": 3,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -174,8 +186,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`sensitivity_state` = 'Missing sensitivity tag'),0)"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     }
                   ],
                   "disaggregated": false
@@ -187,8 +199,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_2)",
+                  "displayName": "Sensitivity tag missing",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -204,7 +224,7 @@
             "x": 6,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -217,8 +237,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "ROUND(100.0 * COUNT_IF(`sensitivity_assignment_count` > 0) / NULLIF(COUNT(*),0),2)"
+                      "name": "avg(_gov_assigned_percentage)",
+                      "expression": "AVG(`_gov_assigned_percentage`)"
                     }
                   ],
                   "disaggregated": false
@@ -230,8 +250,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "avg(_gov_assigned_percentage)",
+                  "displayName": "Sensitivity tag coverage %",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
                 }
               },
               "frame": {
@@ -247,7 +275,7 @@
             "x": 9,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -260,8 +288,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "ROUND(100.0 * COUNT_IF(`sensitivity_state` = 'Recognized sensitivity value') / NULLIF(COUNT(*),0),2)"
+                      "name": "avg(_gov_recognized_percentage)",
+                      "expression": "AVG(`_gov_recognized_percentage`)"
                     }
                   ],
                   "disaggregated": false
@@ -273,8 +301,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "avg(_gov_recognized_percentage)",
+                  "displayName": "Recognized tier values %",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
                 }
               },
               "frame": {
@@ -288,9 +324,9 @@
           },
           "position": {
             "x": 0,
-            "y": 4,
+            "y": 5,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -303,8 +339,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`action_priority` = 'P1 - Correct configuration'),0)"
+                      "name": "sum(_gov_condition_5)",
+                      "expression": "SUM(`_gov_condition_5`)"
                     }
                   ],
                   "disaggregated": false
@@ -316,8 +352,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_5)",
+                  "displayName": "Priority 1 corrections",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -331,9 +375,9 @@
           },
           "position": {
             "x": 3,
-            "y": 4,
+            "y": 5,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -346,8 +390,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`comparable_column`),0)"
+                      "name": "sum(_gov_condition_6)",
+                      "expression": "SUM(`_gov_condition_6`)"
                     }
                   ],
                   "disaggregated": false
@@ -359,8 +403,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_6)",
+                  "displayName": "Columns with comparable evidence",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -374,9 +426,9 @@
           },
           "position": {
             "x": 6,
-            "y": 4,
+            "y": 5,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -389,8 +441,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "ROUND(100.0 * COUNT_IF(`comparable_column` AND `actual_priority` = `expected_priority`) / NULLIF(COUNT_IF(`comparable_column`),0),2)"
+                      "name": "avg(_gov_agreement_percentage)",
+                      "expression": "AVG(`_gov_agreement_percentage`)"
                     }
                   ],
                   "disaggregated": false
@@ -402,8 +454,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "avg(_gov_agreement_percentage)",
+                  "displayName": "Agreement on comparable columns %",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
                 }
               },
               "frame": {
@@ -417,9 +477,9 @@
           },
           "position": {
             "x": 9,
-            "y": 4,
+            "y": 5,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -436,7 +496,7 @@
                       "expression": "`current_sensitivity`"
                     },
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -462,7 +522,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "count(*)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -478,7 +538,7 @@
           },
           "position": {
             "x": 0,
-            "y": 6,
+            "y": 8,
             "width": 6,
             "height": 4
           }
@@ -497,7 +557,7 @@
                       "expression": "`action_priority`"
                     },
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -523,7 +583,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "count(*)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -539,7 +599,7 @@
           },
           "position": {
             "x": 6,
-            "y": 6,
+            "y": 8,
             "width": 6,
             "height": 4
           }
@@ -558,24 +618,24 @@
                       "expression": "`schema_name`"
                     },
                     {
-                      "name": "columns",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     },
                     {
-                      "name": "missing",
-                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     },
                     {
-                      "name": "coverage_pct",
-                      "expression": "ROUND(100.0*COUNT_IF(`sensitivity_assignment_count`>0)/NULLIF(COUNT(*),0),2)"
+                      "name": "avg(_gov_assigned_percentage)",
+                      "expression": "AVG(`_gov_assigned_percentage`)"
                     },
                     {
-                      "name": "p1_corrections",
-                      "expression": "COUNT_IF(`action_priority`='P1 - Correct configuration')"
+                      "name": "sum(_gov_condition_5)",
+                      "expression": "SUM(`_gov_condition_5`)"
                     },
                     {
-                      "name": "unmapped_labels",
-                      "expression": "COUNT_IF(`unmapped_source_label_count`>0)"
+                      "name": "sum(_gov_condition_8)",
+                      "expression": "SUM(`_gov_condition_8`)"
                     }
                   ],
                   "disaggregated": false
@@ -592,23 +652,31 @@
                     "displayName": "Schema Name"
                   },
                   {
-                    "fieldName": "columns",
+                    "fieldName": "count(*)",
                     "displayName": "Columns"
                   },
                   {
-                    "fieldName": "missing",
+                    "fieldName": "sum(_gov_condition_2)",
                     "displayName": "Missing"
                   },
                   {
-                    "fieldName": "coverage_pct",
-                    "displayName": "Coverage Pct"
+                    "fieldName": "avg(_gov_assigned_percentage)",
+                    "displayName": "Coverage Pct",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    }
                   },
                   {
-                    "fieldName": "p1_corrections",
+                    "fieldName": "sum(_gov_condition_5)",
                     "displayName": "P1 Corrections"
                   },
                   {
-                    "fieldName": "unmapped_labels",
+                    "fieldName": "sum(_gov_condition_8)",
                     "displayName": "Unmapped Labels"
                   }
                 ]
@@ -624,7 +692,7 @@
           },
           "position": {
             "x": 0,
-            "y": 10,
+            "y": 12,
             "width": 12,
             "height": 7
           }
@@ -632,15 +700,11 @@
         {
           "widget": {
             "name": "overview_metric_note",
-            "multilineTextboxSpec": {
-              "lines": [
-                "**Interpretation:** coverage measures tag presence; recognized values follow the configured taxonomy. Agreement uses only columns with a valid assigned tier and a usable mapped requirement. Blank agreement means there are no comparable columns. A tagging gap does not by itself establish PII exposure or masking behavior."
-              ]
-            }
+            "textbox_spec": "**Interpretation:** coverage measures tag presence; recognized values follow the configured taxonomy. Agreement uses only columns with a valid assigned tier and a usable mapped requirement. Blank agreement means there are no comparable columns. A tagging gap does not by itself establish PII exposure or masking behavior."
           },
           "position": {
             "x": 0,
-            "y": 17,
+            "y": 19,
             "width": 12,
             "height": 2
           }
@@ -656,11 +720,7 @@
         {
           "widget": {
             "name": "owner_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Find the remediation owner and the largest gaps\nCounts include each visible column once, including columns without tags. Integration metadata is kept visible so scope choices remain explicit."
-              ]
-            }
+            "textbox_spec": "## Find the remediation owner and the largest gaps\nCounts include each visible column once, including columns without tags. Integration metadata is kept visible so scope choices remain explicit."
           },
           "position": {
             "x": 0,
@@ -683,8 +743,8 @@
                       "expression": "`schema_name`"
                     },
                     {
-                      "name": "metric",
-                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     }
                   ],
                   "disaggregated": false
@@ -709,7 +769,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "sum(_gov_condition_2)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -744,24 +804,24 @@
                       "expression": "`remediation_owner`"
                     },
                     {
-                      "name": "schemas",
+                      "name": "countdistinct(schema_name)",
                       "expression": "COUNT(DISTINCT `schema_name`)"
                     },
                     {
-                      "name": "tables_views",
+                      "name": "countdistinct(table_fqn)",
                       "expression": "COUNT(DISTINCT `table_fqn`)"
                     },
                     {
-                      "name": "columns",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     },
                     {
-                      "name": "missing",
-                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     },
                     {
-                      "name": "priority_1",
-                      "expression": "COUNT_IF(`action_priority`='P1 - Correct configuration')"
+                      "name": "sum(_gov_condition_5)",
+                      "expression": "SUM(`_gov_condition_5`)"
                     }
                   ],
                   "disaggregated": false
@@ -778,23 +838,23 @@
                     "displayName": "Remediation Owner"
                   },
                   {
-                    "fieldName": "schemas",
+                    "fieldName": "countdistinct(schema_name)",
                     "displayName": "Schemas"
                   },
                   {
-                    "fieldName": "tables_views",
+                    "fieldName": "countdistinct(table_fqn)",
                     "displayName": "Tables Views"
                   },
                   {
-                    "fieldName": "columns",
+                    "fieldName": "count(*)",
                     "displayName": "Columns"
                   },
                   {
-                    "fieldName": "missing",
+                    "fieldName": "sum(_gov_condition_2)",
                     "displayName": "Missing"
                   },
                   {
-                    "fieldName": "priority_1",
+                    "fieldName": "sum(_gov_condition_5)",
                     "displayName": "Priority 1"
                   }
                 ]
@@ -841,20 +901,20 @@
                       "expression": "`remediation_owner`"
                     },
                     {
-                      "name": "columns",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     },
                     {
-                      "name": "missing",
-                      "expression": "COUNT_IF(`sensitivity_state`='Missing sensitivity tag')"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     },
                     {
-                      "name": "tag_coverage_pct",
-                      "expression": "ROUND(100.0*COUNT_IF(`sensitivity_assignment_count`>0)/NULLIF(COUNT(*),0),2)"
+                      "name": "avg(_gov_assigned_percentage)",
+                      "expression": "AVG(`_gov_assigned_percentage`)"
                     },
                     {
-                      "name": "name_hint_review",
-                      "expression": "COUNT_IF(`name_hint_review`)"
+                      "name": "sum(_gov_condition_9)",
+                      "expression": "SUM(`_gov_condition_9`)"
                     }
                   ],
                   "disaggregated": false
@@ -883,19 +943,27 @@
                     "displayName": "Remediation Owner"
                   },
                   {
-                    "fieldName": "columns",
+                    "fieldName": "count(*)",
                     "displayName": "Columns"
                   },
                   {
-                    "fieldName": "missing",
+                    "fieldName": "sum(_gov_condition_2)",
                     "displayName": "Missing"
                   },
                   {
-                    "fieldName": "tag_coverage_pct",
-                    "displayName": "Tag Coverage Pct"
+                    "fieldName": "avg(_gov_assigned_percentage)",
+                    "displayName": "Tag Coverage Pct",
+                    "format": {
+                      "type": "number-plain",
+                      "abbreviation": "none",
+                      "decimalPlaces": {
+                        "type": "max",
+                        "places": 2
+                      }
+                    }
                   },
                   {
-                    "fieldName": "name_hint_review",
+                    "fieldName": "sum(_gov_condition_9)",
                     "displayName": "Name Hint Review"
                   }
                 ]
@@ -927,11 +995,7 @@
         {
           "widget": {
             "name": "column_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Trace every column to its evidence\nUse the global schema, table, sensitivity and outcome filters. Name hints are metadata review aids; they are not content-scanning results or automatic classifications."
-              ]
-            }
+            "textbox_spec": "## Trace every column to its evidence\nUse the global schema, table, sensitivity and outcome filters. Name hints are metadata review aids; they are not content-scanning results or automatic classifications."
           },
           "position": {
             "x": 0,
@@ -1209,11 +1273,7 @@
         {
           "widget": {
             "name": "reconciliation_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Compare assigned tiers with mapped source requirements\nExact source-tag names and values are matched to classification_mapping. Multiple valid requirements resolve to the strongest tier (priority 1 first). Unmapped labels and inconsistent rules remain visible alongside agreement."
-              ]
-            }
+            "textbox_spec": "## Compare assigned tiers with mapped source requirements\nExact source-tag names and values are matched to classification_mapping. Multiple valid requirements resolve to the strongest tier (priority 1 first). Unmapped labels and inconsistent rules remain visible alongside agreement."
           },
           "position": {
             "x": 0,
@@ -1232,8 +1292,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`expected_priority` IS NOT NULL AND `sensitivity_state`='Missing sensitivity tag'),0)"
+                      "name": "sum(_gov_condition_10)",
+                      "expression": "SUM(`_gov_condition_10`)"
                     }
                   ],
                   "disaggregated": false
@@ -1245,8 +1305,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_10)",
+                  "displayName": "Mapped requirement; tag missing",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1262,7 +1330,7 @@
             "x": 0,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1275,8 +1343,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`sensitivity_state`='Recognized sensitivity value' AND `actual_priority`>`expected_priority`),0)"
+                      "name": "sum(_gov_condition_11)",
+                      "expression": "SUM(`_gov_condition_11`)"
                     }
                   ],
                   "disaggregated": false
@@ -1288,8 +1356,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_11)",
+                  "displayName": "Assigned tier below requirement",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1305,7 +1381,7 @@
             "x": 3,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1318,8 +1394,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`sensitivity_state`='Recognized sensitivity value' AND `actual_priority`<`expected_priority`),0)"
+                      "name": "sum(_gov_condition_12)",
+                      "expression": "SUM(`_gov_condition_12`)"
                     }
                   ],
                   "disaggregated": false
@@ -1331,8 +1407,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_12)",
+                  "displayName": "Assigned tier above requirement",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1348,7 +1432,7 @@
             "x": 6,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1361,8 +1445,8 @@
                   "datasetName": "column_inventory",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`unmapped_source_label_count`>0),0)"
+                      "name": "sum(_gov_condition_8)",
+                      "expression": "SUM(`_gov_condition_8`)"
                     }
                   ],
                   "disaggregated": false
@@ -1374,8 +1458,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_8)",
+                  "displayName": "Columns with unmapped source labels",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1391,7 +1483,7 @@
             "x": 9,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1408,7 +1500,7 @@
                       "expression": "`reconciliation_outcome`"
                     },
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -1434,7 +1526,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "count(*)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -1450,7 +1542,7 @@
           },
           "position": {
             "x": 0,
-            "y": 4,
+            "y": 5,
             "width": 6,
             "height": 4
           }
@@ -1469,7 +1561,7 @@
                       "expression": "`reconciliation_basis`"
                     },
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -1495,7 +1587,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "count(*)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -1511,7 +1603,7 @@
           },
           "position": {
             "x": 6,
-            "y": 4,
+            "y": 5,
             "width": 6,
             "height": 4
           }
@@ -1636,7 +1728,7 @@
           },
           "position": {
             "x": 0,
-            "y": 8,
+            "y": 9,
             "width": 12,
             "height": 10
           }
@@ -1745,7 +1837,7 @@
           },
           "position": {
             "x": 0,
-            "y": 18,
+            "y": 19,
             "width": 12,
             "height": 8
           }
@@ -1761,11 +1853,7 @@
         {
           "widget": {
             "name": "collate_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Collate reconciliation with explicit source outcomes\nThis feed contains glossary assignments. Only current, confirmed, non-deleted column assignments from the configured source service, matched to a visible Raw column and a consistent sensitivity mapping, contribute a requirement. Business glossary terms are not automatically sensitivity classes."
-              ]
-            }
+            "textbox_spec": "## Collate reconciliation with explicit source outcomes\nThis feed contains glossary assignments. Only current, confirmed, non-deleted column assignments from the configured source service, matched to a visible Raw column and a consistent sensitivity mapping, contribute a requirement. Business glossary terms are not automatically sensitivity classes."
           },
           "position": {
             "x": 0,
@@ -1784,7 +1872,7 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "max(glossary_feed_rows)",
                       "expression": "MAX(`glossary_feed_rows`)"
                     }
                   ],
@@ -1797,8 +1885,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "max(glossary_feed_rows)",
+                  "displayName": "Largest glossary feed (rows)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1814,7 +1910,7 @@
             "x": 0,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1827,7 +1923,7 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "sum(raw_candidate_rows)",
                       "expression": "SUM(`raw_candidate_rows`)"
                     }
                   ],
@@ -1840,8 +1936,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(raw_candidate_rows)",
+                  "displayName": "Raw candidate assignment rows",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1857,7 +1961,7 @@
             "x": 3,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1870,7 +1974,7 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "sum(identity_matched_rows)",
                       "expression": "SUM(`identity_matched_rows`)"
                     }
                   ],
@@ -1883,8 +1987,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(identity_matched_rows)",
+                  "displayName": "Raw identity-matched rows",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1900,7 +2012,7 @@
             "x": 6,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -1913,7 +2025,7 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "sum(usable_raw_assignments)",
                       "expression": "SUM(`usable_raw_assignments`)"
                     }
                   ],
@@ -1926,8 +2038,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(usable_raw_assignments)",
+                  "displayName": "Current mapped assignment rows",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -1943,7 +2063,7 @@
             "x": 9,
             "y": 3,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2082,7 +2202,7 @@
           },
           "position": {
             "x": 0,
-            "y": 7,
+            "y": 9,
             "width": 12,
             "height": 5
           }
@@ -2175,7 +2295,7 @@
           },
           "position": {
             "x": 0,
-            "y": 12,
+            "y": 14,
             "width": 12,
             "height": 8
           }
@@ -2183,15 +2303,11 @@
         {
           "widget": {
             "name": "collate_feed_note",
-            "multilineTextboxSpec": {
-              "lines": [
-                "**Reading this page:** source-feed and reference totals do not follow the column filters. Raw candidate, identity and mapped-assignment cards total the configured Raw catalog scopes. The largest-source-feed card uses a maximum because multiple catalogs may share one feed. Freshness is calculated from the source observation timestamp against the configured review threshold, not from dashboard refresh time. Zero Raw candidates means this inspected glossary feed supplies no Raw reconciliation candidates; it does not establish what exists elsewhere in Collate."
-              ]
-            }
+            "textbox_spec": "**Reading this page:** source-feed and reference totals do not follow the column filters. Raw candidate, identity and mapped-assignment cards total the configured Raw catalog scopes. The largest-source-feed card uses a maximum because multiple catalogs may share one feed. Freshness is calculated from the source observation timestamp against the configured review threshold, not from dashboard refresh time. Zero Raw candidates means this inspected glossary feed supplies no Raw reconciliation candidates; it does not establish what exists elsewhere in Collate."
           },
           "position": {
             "x": 0,
-            "y": 20,
+            "y": 22,
             "width": 12,
             "height": 3
           }
@@ -2206,8 +2322,8 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COUNT(DISTINCT CASE WHEN `feed_freshness_state`='Refresh overdue' THEN `source_table` END)"
+                      "name": "countdistinct(_gov_condition_1)",
+                      "expression": "COUNT(DISTINCT `_gov_condition_1`)"
                     }
                   ],
                   "disaggregated": false
@@ -2219,8 +2335,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "countdistinct(_gov_condition_1)",
+                  "displayName": "Feeds overdue for refresh",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2234,9 +2358,9 @@
           },
           "position": {
             "x": 0,
-            "y": 5,
+            "y": 6,
             "width": 4,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2249,7 +2373,7 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "max(feed_age_days)",
                       "expression": "MAX(`feed_age_days`)"
                     }
                   ],
@@ -2262,8 +2386,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "max(feed_age_days)",
+                  "displayName": "Maximum observation age (days)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 2
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2277,9 +2409,9 @@
           },
           "position": {
             "x": 4,
-            "y": 5,
+            "y": 6,
             "width": 4,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2292,8 +2424,8 @@
                   "datasetName": "collate_feed_health",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`raw_candidate_rows`=0 AND `feed_freshness_state`<>'Source not configured'),0)"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     }
                   ],
                   "disaggregated": false
@@ -2305,8 +2437,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_2)",
+                  "displayName": "Raw scopes with no feed candidates",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2320,9 +2460,9 @@
           },
           "position": {
             "x": 8,
-            "y": 5,
+            "y": 6,
             "width": 4,
-            "height": 2
+            "height": 3
           }
         }
       ],
@@ -2336,11 +2476,7 @@
         {
           "widget": {
             "name": "mapping_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Make classification rules complete and consistent\nValidate the mapping rows themselves, find unmapped source labels and inspect the actual tag vocabulary. Rules use exact keys and values; no automatic alias from auto_class to General or another classification key is assumed."
-              ]
-            }
+            "textbox_spec": "## Make classification rules complete and consistent\nValidate the mapping rows themselves, find unmapped source labels and inspect the actual tag vocabulary. Rules use exact keys and values; no automatic alias from auto_class to General or another classification key is assumed."
           },
           "position": {
             "x": 0,
@@ -2359,7 +2495,7 @@
                   "datasetName": "mapping_rule_health",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -2372,8 +2508,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "count(*)",
+                  "displayName": "Distinct mapping definitions",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2389,7 +2533,7 @@
             "x": 0,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2402,8 +2546,8 @@
                   "datasetName": "mapping_rule_health",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`rule_state`='Rule usable'),0)"
+                      "name": "sum(_gov_condition_1)",
+                      "expression": "SUM(`_gov_condition_1`)"
                     }
                   ],
                   "disaggregated": false
@@ -2415,8 +2559,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_1)",
+                  "displayName": "Usable mapping definitions",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2432,7 +2584,7 @@
             "x": 3,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2445,8 +2597,8 @@
                   "datasetName": "mapping_rule_health",
                   "fields": [
                     {
-                      "name": "metric",
-                      "expression": "COALESCE(COUNT_IF(`rule_state`<>'Rule usable'),0)"
+                      "name": "sum(_gov_condition_2)",
+                      "expression": "SUM(`_gov_condition_2`)"
                     }
                   ],
                   "disaggregated": false
@@ -2458,8 +2610,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "sum(_gov_condition_2)",
+                  "displayName": "Mapping definitions needing correction",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2475,7 +2635,7 @@
             "x": 6,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2488,7 +2648,7 @@
                   "datasetName": "unmapped_source_labels",
                   "fields": [
                     {
-                      "name": "metric",
+                      "name": "count(*)",
                       "expression": "COUNT(*)"
                     }
                   ],
@@ -2501,8 +2661,16 @@
               "widgetType": "counter",
               "encodings": {
                 "value": {
-                  "fieldName": "metric",
-                  "rowNumber": 0
+                  "fieldName": "count(*)",
+                  "displayName": "Unmapped source key/value pairs",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
                 }
               },
               "frame": {
@@ -2518,7 +2686,7 @@
             "x": 9,
             "y": 2,
             "width": 3,
-            "height": 2
+            "height": 3
           }
         },
         {
@@ -2593,7 +2761,7 @@
           },
           "position": {
             "x": 0,
-            "y": 4,
+            "y": 5,
             "width": 12,
             "height": 6
           }
@@ -2710,7 +2878,7 @@
           },
           "position": {
             "x": 0,
-            "y": 10,
+            "y": 11,
             "width": 12,
             "height": 9
           }
@@ -2795,7 +2963,7 @@
           },
           "position": {
             "x": 0,
-            "y": 19,
+            "y": 20,
             "width": 12,
             "height": 7
           }
@@ -2811,11 +2979,7 @@
         {
           "widget": {
             "name": "remediation_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Prioritized stewardship\nThe detailed queue shows P1/P2 configuration corrections and evidence reviews. Ordinary missing-tag backlog stays aggregated by schema/table on the coverage pages. Queue rows are review findings, not automatically created incidents or sent notifications."
-              ]
-            }
+            "textbox_spec": "## Prioritized stewardship\nThe detailed queue shows P1/P2 configuration corrections and evidence reviews. Ordinary missing-tag backlog stays aggregated by schema/table on the coverage pages. Queue rows are review findings, not automatically created incidents or sent notifications."
           },
           "position": {
             "x": 0,
@@ -2838,8 +3002,8 @@
                       "expression": "`remediation_owner`"
                     },
                     {
-                      "name": "metric",
-                      "expression": "COUNT_IF(`action_priority`='P1 - Correct configuration')"
+                      "name": "sum(_gov_condition_5)",
+                      "expression": "SUM(`_gov_condition_5`)"
                     }
                   ],
                   "disaggregated": false
@@ -2864,7 +3028,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "sum(_gov_condition_5)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -2899,8 +3063,8 @@
                       "expression": "`name_hint`"
                     },
                     {
-                      "name": "metric",
-                      "expression": "COUNT_IF(`name_hint_review`)"
+                      "name": "sum(_gov_condition_9)",
+                      "expression": "SUM(`_gov_condition_9`)"
                     }
                   ],
                   "disaggregated": false
@@ -2925,7 +3089,7 @@
                   }
                 },
                 "y": {
-                  "fieldName": "metric",
+                  "fieldName": "sum(_gov_condition_9)",
                   "scale": {
                     "type": "quantitative"
                   }
@@ -3082,11 +3246,7 @@
         {
           "widget": {
             "name": "scope_title",
-            "multilineTextboxSpec": {
-              "lines": [
-                "## Deployment scope and metric definitions\nThe same dashboard is bound to each environment\u2019s governance catalog/schema at deployment. Included catalogs, schema exclusions, reference sources, source service identity and review thresholds come from that environment\u2019s configuration. Inventory visibility follows the execution identity and source-view permissions."
-              ]
-            }
+            "textbox_spec": "## Deployment scope and metric definitions\nThe same dashboard is bound to each environment\u2019s governance catalog/schema at deployment. Included catalogs, schema exclusions, reference sources, source service identity and review thresholds come from that environment\u2019s configuration. Inventory visibility follows the execution identity and source-view permissions."
           },
           "position": {
             "x": 0,
@@ -3199,11 +3359,7 @@
         {
           "widget": {
             "name": "method_definitions",
-            "multilineTextboxSpec": {
-              "lines": [
-                "### Definitions\n**Tag coverage:** columns with a sensitivity-tag assignment / visible columns.\n**Recognized tier:** one sensitivity value recognized by the configured taxonomy; this does not prove the tag is governed.\n**Mapped agreement:** equal assigned and expected priorities / columns with both a recognized tier and usable mapped evidence. No comparables produces a blank percentage.\n**Mapping consistency:** classification, short class and numeric priority agree with the configured taxonomy; conflicting source-key targets require correction.\n**Collate reconciliation:** exact column identity and explicitly mapped terms, with confirmation, deletion and freshness checks. A business glossary assignment is not automatically a sensitivity classification.\n**Name hints:** column-name patterns for steward review; they can miss PII or flag non-PII.\n**Story 1 scope:** classification metadata and stewardship. Policy definitions, masking behavior, identity-based enforcement tests and ML are separate work."
-              ]
-            }
+            "textbox_spec": "### Definitions\n**Tag coverage:** columns with a sensitivity-tag assignment / visible columns.\n**Recognized tier:** one sensitivity value recognized by the configured taxonomy; this does not prove the tag is governed.\n**Mapped agreement:** equal assigned and expected priorities / columns with both a recognized tier and usable mapped evidence. No comparables produces a blank percentage.\n**Mapping consistency:** classification, short class and numeric priority agree with the configured taxonomy; conflicting source-key targets require correction.\n**Collate reconciliation:** exact column identity and explicitly mapped terms, with confirmation, deletion and freshness checks. A business glossary assignment is not automatically a sensitivity classification.\n**Name hints:** column-name patterns for steward review; they can miss PII or flag non-PII.\n**Story 1 scope:** classification metadata and stewardship. Policy definitions, masking behavior, identity-based enforcement tests and ML are separate work."
           },
           "position": {
             "x": 0,
@@ -3215,11 +3371,7 @@
         {
           "widget": {
             "name": "sources_definitions",
-            "multilineTextboxSpec": {
-              "lines": [
-                "### Sources and refresh\nUnity Catalog columns, tables and column tags; configured classification mappings and optional Collate glossary assignments. All counts are calculated when datasets refresh. Dataset query time and the last source-feed observation are separate fields. This edition has no historical journal, scheduled monitor, notification delivery or enforcement-test results. Operational change monitoring follows dashboard validation in DEV."
-              ]
-            }
+            "textbox_spec": "### Sources and refresh\nUnity Catalog columns, tables and column tags; configured classification mappings and optional Collate glossary assignments. All counts are calculated when datasets refresh. Dataset query time and the last source-feed observation are separate fields. This edition has no historical journal, scheduled monitor, notification delivery or enforcement-test results. Operational change monitoring follows dashboard validation in DEV."
           },
           "position": {
             "x": 0,
