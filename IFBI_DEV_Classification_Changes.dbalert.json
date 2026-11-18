@@ -1,0 +1,81 @@
+{
+  "custom_summary": "IFBI DEV - Raw classification monitor",
+  "custom_template_format": "MARKDOWN",
+  "query_lines": [
+    "WITH binding AS (",
+    " SELECT CASE WHEN EXISTS (SELECT 1 FROM `ifbi_edw_dev_raw`.`governance_observability`.`classification_monitor_sql_journal` WHERE monitor_id='sql_dev_5b8539c90cb5' AND record_type='RUN' AND run_id=CASE WHEN :monitor_run_token='__LATEST__' THEN (SELECT run_id FROM `ifbi_edw_dev_raw`.`governance_observability`.`classification_monitor_sql_journal` WHERE monitor_id='sql_dev_5b8539c90cb5' AND record_type='RUN' ORDER BY observed_at DESC,run_id DESC LIMIT 1) ELSE sha2(concat('sql_dev_5b8539c90cb5',':',:monitor_run_token),256) END AND run_id=(SELECT run_id FROM `ifbi_edw_dev_raw`.`governance_observability`.`classification_monitor_sql_journal` WHERE monitor_id='sql_dev_5b8539c90cb5' AND record_type='RUN' ORDER BY observed_at DESC,run_id DESC LIMIT 1))",
+    " THEN 0 ELSE raise_error('Monitor run parameter is not bound to a published batch') END AS binding_error",
+    "), selected AS (",
+    " SELECT get_json_object(payload_json,'$.notice_id') AS notice_id,",
+    " get_json_object(payload_json,'$.kind') AS event_kind,",
+    " get_json_object(payload_json,'$.finding_type') AS finding_type,",
+    " get_json_object(payload_json,'$.priority') AS priority,",
+    " get_json_object(payload_json,'$.catalog_name') AS catalog_name,",
+    " get_json_object(payload_json,'$.schema_name') AS schema_name,",
+    " get_json_object(payload_json,'$.table_name') AS table_name,",
+    " get_json_object(payload_json,'$.column_name') AS column_name,",
+    " get_json_object(payload_json,'$.owner') AS responsible_owner",
+    " FROM `ifbi_edw_dev_raw`.`governance_observability`.`classification_monitor_sql_journal` j",
+    " WHERE monitor_id='sql_dev_5b8539c90cb5' AND run_id=CASE WHEN :monitor_run_token='__LATEST__' THEN (SELECT run_id FROM `ifbi_edw_dev_raw`.`governance_observability`.`classification_monitor_sql_journal` WHERE monitor_id='sql_dev_5b8539c90cb5' AND record_type='RUN' ORDER BY observed_at DESC,run_id DESC LIMIT 1) ELSE sha2(concat('sql_dev_5b8539c90cb5',':',:monitor_run_token),256) END",
+    " AND record_type='NOTICE' AND get_json_object(payload_json,'$.selected_for_batch')='true'",
+    " AND NOT EXISTS (SELECT 1 FROM `ifbi_edw_dev_raw`.`governance_observability`.`classification_monitor_sql_journal` a WHERE a.monitor_id=j.monitor_id AND a.record_type='ACK'",
+    " AND get_json_object(a.payload_json,'$.notice_id')=j.record_id)",
+    "), totals AS (SELECT count(*) AS notice_count FROM selected), grouped AS (",
+    " SELECT event_kind,finding_type,priority,catalog_name,schema_name,table_name,responsible_owner,",
+    " count(*) AS affected_events,",
+    " concat_ws('; ',slice(sort_array(collect_set(column_name)),1,5)) AS example_columns",
+    " FROM selected GROUP BY event_kind,finding_type,priority,catalog_name,schema_name,table_name,responsible_owner",
+    " ORDER BY priority,affected_events DESC LIMIT 99",
+    ")",
+    "SELECT t.notice_count+b.binding_error AS notice_count,g.* FROM totals t CROSS JOIN binding b LEFT JOIN grouped g ON true",
+    "ORDER BY g.priority,g.affected_events DESC"
+  ],
+  "evaluation": {
+    "source": {
+      "name": "notice_count",
+      "aggregation": "MAX"
+    },
+    "comparison_operator": "GREATER_THAN",
+    "threshold": {
+      "value": {
+        "double_value": 0.0
+      }
+    },
+    "empty_result_state": "ERROR",
+    "notification": {
+      "subscriptions": [
+        {
+          "user_email": "C000926@infarmbureau.com"
+        }
+      ],
+      "notify_on_ok": false,
+      "retrigger_seconds": 1
+    }
+  },
+  "parameters": [
+    {
+      "name": "monitor_run_token",
+      "type": "STRING",
+      "value": "__LATEST__"
+    }
+  ],
+  "schedule": {
+    "quartz_cron_schedule": "0 7 * * * ?",
+    "timezone_id": "UTC",
+    "pause_status": "PAUSED"
+  },
+  "custom_description_lines": [
+    "Classification monitoring for the inventory behind the IFBI governance dashboard.",
+    "Source: Step2_SQL_Classification_Monitor.sql, using ifbi_edw_dev_raw.governance_observability.classification_monitor_sql_journal.",
+    "Recipient: C000926@infarmbureau.com.",
+    "",
+    "ACTIVATION is the first monitor summary, not a security incident. NEW, REMINDER and RECOVERY are classification-change events. SUMMARY is aggregate coverage backlog.",
+    "The total includes the selected batch; up to 99 owner/table/finding groups and example columns are shown. The monitor notification view contains the full detail.",
+    "",
+    "@QUERY_RESULT_TABLE",
+    "",
+    "Alert details: @ALERT_URL",
+    "",
+    "No customer values are included. Scheduled automation uses the collector -> native SQL alert -> evaluation receipt job. A successful evaluation does not attest mailbox delivery."
+  ]
+}
