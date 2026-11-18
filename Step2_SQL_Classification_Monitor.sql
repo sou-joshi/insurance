@@ -585,13 +585,27 @@ ORDER BY g.priority,g.affected_events DESC')) DO
 END;
 
 -- COMMAND ----------
+-- CALL cannot run inside EXECUTE IMMEDIATE. Select the configured namespace
+-- in separate statements, then invoke the procedure as a direct SQL command.
+DECLARE OR REPLACE VARIABLE monitor_previous_catalog STRING DEFAULT current_catalog();
+DECLARE OR REPLACE VARIABLE monitor_previous_schema STRING DEFAULT current_schema();
+DECLARE OR REPLACE VARIABLE monitor_target_catalog STRING DEFAULT monitor_cfg.output_catalog;
+DECLARE OR REPLACE VARIABLE monitor_target_schema STRING DEFAULT monitor_cfg.output_schema;
+USE CATALOG IDENTIFIER(monitor_target_catalog);
+USE SCHEMA IDENTIFIER(monitor_target_schema);
+
+-- COMMAND ----------
+-- Every manual run collects a fresh snapshot; the first establishes a baseline.
+CALL raw_classification_collect_sql(concat('manual_monitor_',uuid()));
+
+-- COMMAND ----------
+USE CATALOG IDENTIFIER(monitor_previous_catalog);
+USE SCHEMA IDENTIFIER(monitor_previous_schema);
+
+-- COMMAND ----------
 BEGIN
  DECLARE v_sql STRING;
  DECLARE v_exists BIGINT;
- -- Every manual run collects a fresh snapshot; only the very first establishes
- -- a baseline. A recognized implementation upgrade preserves the old state.
- SET v_sql=concat('CALL ',monitor_prefix,'.raw_classification_collect_sql(',char(39),'manual_monitor_',uuid(),char(39),')');
- EXECUTE IMMEDIATE v_sql;
  FOR view_row AS SELECT key AS view_suffix,value AS query_sql FROM explode(monitor_rendered) WHERE startswith(key,'monitor_') DO
   SET v_exists=(SELECT count(*) FROM system.information_schema.tables WHERE table_catalog=monitor_cfg.output_catalog
    AND table_schema=monitor_cfg.output_schema AND table_name=concat('raw_classification_',view_row.view_suffix));
