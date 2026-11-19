@@ -148,3 +148,24 @@ def framework(*arguments):
         raise RuntimeError(
             "Framework failed. Check the preceding output."
         )
+
+
+from unittest.mock import patch
+from databricks.sdk.core import ApiClient
+
+original_do = ApiClient.do
+
+def show_api_error(self, *args, **kwargs):
+    try:
+        return original_do(self, *args, **kwargs)
+    except Exception as error:
+        method = args[0] if args else kwargs.get("method")
+        path = args[1] if len(args) > 1 else kwargs.get("path")
+
+        print("FAILED_API:", method, path)
+        print("ACTUAL_ERROR:", type(error).__name__)
+        print(str(error)[:3000])
+        raise
+
+with patch.object(ApiClient, "do", show_api_error):
+    framework("run")
