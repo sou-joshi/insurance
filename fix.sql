@@ -118,3 +118,33 @@ WHERE c.table_schema NOT IN (
   'collate'
 )
 ORDER BY c.table_schema, c.table_name, c.ordinal_position;
+
+
+
+import sys
+from pathlib import Path
+
+ROOT = Path.cwd()
+assert (ROOT / "config.toml").is_file(), (
+    "Create this notebook inside the framework folder."
+)
+
+sys.path.insert(0, str(ROOT))
+from ucf.app import main
+
+def framework(*arguments):
+    previous = sys.argv[:]
+    try:
+        sys.argv = [
+            "run_framework.py",
+            "--config", str(ROOT / "config.toml"),
+            *arguments
+        ]
+        result = main()
+    finally:
+        sys.argv = previous
+
+    if result != 0:
+        raise RuntimeError(
+            "Framework failed. Check the preceding output."
+        )
